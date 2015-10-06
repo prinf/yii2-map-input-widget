@@ -34,7 +34,7 @@ class MapInputWidget extends \yii\widgets\InputWidget
     public function run()
     {
 
-        Yii::setAlias('@kolyunya','@vendor/kolyunya');
+        Yii::setAlias('@prinf','@vendor/prinf');
 
         // Asset bundle should be configured with the application key
         $this->configureAssetBundle();
@@ -62,6 +62,6 @@ class MapInputWidget extends \yii\widgets\InputWidget
 
     private function configureAssetBundle()
     {
-        \kolyunya\yii2\assets\MapInputAsset::$key = $this->key;
+        \prinf\yii2\assets\MapInputAsset::$key = $this->key;
     }
 }
