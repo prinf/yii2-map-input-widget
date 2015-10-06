@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 
 // Register asset bundle
-\kolyunya\yii2\assets\MapInputAsset::register($this);
+\prinf\yii2\assets\MapInputAsset::register($this);
 
 // [BEGIN] - Map input widget container
 echo Html::beginTag(

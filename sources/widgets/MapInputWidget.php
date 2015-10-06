@@ -1,6 +1,6 @@
 <?php
 
-namespace kolyunya\yii2\widgets;
+namespace prinf\yii2\widgets;
 
 use Yii;
 

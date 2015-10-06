@@ -1,6 +1,6 @@
 <?php
 
-namespace kolyunya\yii2\assets;
+namespace prinf\yii2\assets;
 
 class MapInputAsset extends \yii\web\AssetBundle
 {
