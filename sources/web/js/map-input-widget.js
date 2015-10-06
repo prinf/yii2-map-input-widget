@@ -1,7 +1,7 @@
 function MapInputWidgetManager()
 {
 
-    const widgetSelector = '.kolyunya-map-input-widget';
+    var widgetSelector = '.kolyunya-map-input-widget';
 
     var self = this;
 
@@ -51,13 +51,15 @@ function MapInputWidgetManager()
 function MapInputWidget ( widget )
 {
 
-    const inputSelector = 'input.kolyunya-map-input-widget-input';
+    var inputLatSelector = $(widget).data('latitude-selector');
+    var inputLngSelector = $(widget).data('longitude-selector');
 
-    const canvasSelector = 'div.kolyunya-map-input-widget-canvas';
+    var canvasSelector = 'div.kolyunya-map-input-widget-canvas';
 
     var self = this;
 
-    var input;
+    var inputLat;
+    var inputLng;
 
     var canvas;
 
@@ -65,7 +67,8 @@ function MapInputWidget ( widget )
 
     var initializeComponents = function()
     {
-        input = $(widget).find(inputSelector).get(0);
+        inputLat = $(inputLatSelector).get(0);
+        inputLng = $(inputLngSelector).get(0);
         canvas = $(widget).find(canvasSelector).get(0);
     };
 
@@ -125,47 +128,19 @@ function MapInputWidget ( widget )
         $(widget).data('initialized',true);
     };
 
-    var makePointString = function ( pointData )
-    {
-        var pattern = getPattern();
-        var point = makePoint(pointData);
-        pattern = pattern.replace(/%latitude%/g,point.lat());
-        pattern = pattern.replace(/%longitude%/g,point.lng());
-        return pattern;
-    };
-
     var hasInitialValue = function()
     {
-        var hasInitialValue = $(input).prop('value') != '';
+        var hasInitialValue = $(inputLat).prop('value') != '' && $(inputLng).prop('value') != '';
         return hasInitialValue;
     };
 
     var getInitialValue = function()
     {
-        var point;
-        var pattern = getPattern();
-        var pointString = $(input).prop('value');
-        if ( pointString !== '' )
-        {
-            //  The function has an issue - it will not parse the initial value correctly
-            //  if the pattern has more than one occurence of "%latitude%" or "%longitude%"
-            //  in a row in the begining of the string.
-            //  E.g. the initial value won't be parsed correctly against
-            //  the pattern "%latitude% - %latitude% - %longitude%".
-            var latitudePosition = pattern.indexOf('%latitude%');
-            var longitudePosition = pattern.indexOf('%longitude%');
-            var latitudeFirst = latitudePosition < longitudePosition;
-            var latitudeIndex = latitudeFirst ? 0 : 1;
-            var longitudeIndex = latitudeFirst ? 1 : 0;
-            var latitude = pointString.match(/-?\d+(\.\d+)?/g)[latitudeIndex];
-            var longitude = pointString.match(/-?\d+(\.\d+)?/g)[longitudeIndex];
-            point = new google.maps.LatLng(latitude,longitude);
+        if($(inputLat).prop('value') != '' && $(inputLng).prop('value') != ''){
+            return new google.maps.LatLng($(inputLat).prop('value'), $(inputLng).prop('value'));
+        } else {
+            return null;
         }
-        else
-        {
-            point = null;
-        }
-        return point;
     };
 
     var getInitialCenter = function()
@@ -190,12 +165,6 @@ function MapInputWidget ( widget )
         return initialMapCenter;
     };
 
-    var getPattern = function()
-    {
-        var pattern = $(widget).data('pattern');
-        return pattern;
-    };
-
     // Constructs a point from latitude and langitude
     var makePoint = function ( pointData )
     {
@@ -216,7 +185,7 @@ function MapInputWidget ( widget )
             point = pointData;
         }
         return point;
-    }
+    };
 
     // Initializes widget
     this.initialize = function()
@@ -247,16 +216,50 @@ function MapInputWidget ( widget )
         if ( pointData === null )
         {
             // Disable the input in order not to send it in POST array
-            $(input).prop('disabled',true);
+            $(inputLat).prop('disabled',true);
+            $(inputLng).prop('disabled',true);
             return;
         }
         else
         {
             // Enable the input in order to send in in POST array
-            $(input).prop('disabled',false);
+            $(inputLat).prop('disabled',false);
+            $(inputLng).prop('disabled',false);
         }
 
         var point = makePoint(pointData);
+
+        //reverse geocoding...
+        $.ajax({
+            url: "http://nominatim.openstreetmap.org/reverse",
+            data: {
+                "format": "json",
+                "lat": point.lat(),
+                "lon": point.lng(),
+                "addressdetails": 1,
+                "accept-language": 'en'
+            },
+            cache: false,
+            type: "GET",
+            success: function (response) {
+                var result = '';
+                if(response.address.pedestrian){ result += response.address.pedestrian;}
+                else if(response.address.road){ result += response.address.road;}
+                else if(response.address.suburb){ result += response.address.suburb;}
+
+                if(response.address.house_number){ result += ', '+response.address.house_number;}
+                if(response.address.city){ result += ', '+response.address.city;}
+                if(response.address.city_district){result += ', '+response.address.city_district;}
+                if(response.address.postcode){result += ', '+response.address.postcode;}
+
+                var address_input = $($(widget).data('address-selector'));
+                address_input.animate({borderColor: "#FF0000"}, 250);
+                setTimeout(function(){
+                    address_input.val(result);
+                    address_input.animate({borderColor: "#CCCCCC"}, 250)
+                },400);
+            }
+        });
 
         if ( $(widget).data('align-map-center') === 1 )
         {
@@ -288,9 +291,8 @@ function MapInputWidget ( widget )
             }
         );
 
-        var pattern = $(widget).data('pattern');
-        var pointString = makePointString(point);
-        $(input).prop('value',pointString);
+        $(inputLat).prop('value', point.lat());
+        $(inputLng).prop('value', point.lng());
 
     };
 
@@ -308,7 +310,7 @@ function MapInputWidget ( widget )
     };
 
 
-};
+}
 
 // A global instance of map inputs manager.
 // Use it to get references to widget instances.

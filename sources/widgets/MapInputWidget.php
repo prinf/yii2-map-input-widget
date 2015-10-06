@@ -19,13 +19,17 @@ class MapInputWidget extends \yii\widgets\InputWidget
 
     public $height = '300px';
 
-    public $pattern = '(%latitude%,%longitude%)';
-
     public $mapType = 'roadmap';
 
     public $animateMarker = false;
 
     public $alignMapCenter = true;
+
+    public $latitudeSelector = null;
+
+    public $longitudeSelector = null;
+
+    public $addressSelector = null;
 
     public function run()
     {
@@ -43,10 +47,12 @@ class MapInputWidget extends \yii\widgets\InputWidget
                 'attribute' => $this->attribute,
                 'latitude' => $this->latitude,
                 'longitude' => $this->longitude,
+                'latitudeSelector' => $this->latitudeSelector,
+                'longitudeSelector' => $this->longitudeSelector,
+                'addressSelector' => $this->addressSelector,
                 'zoom' => $this->zoom,
                 'width' => $this->width,
                 'height' => $this->height,
-                'pattern' => $this->pattern,
                 'mapType' => $this->mapType,
                 'animateMarker' => $this->animateMarker,
                 'alignMapCenter' => $this->alignMapCenter,

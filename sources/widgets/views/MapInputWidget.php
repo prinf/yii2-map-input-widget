@@ -18,22 +18,15 @@ echo Html::beginTag(
             'latitude' => $latitude,
             'longitude' => $longitude,
             'zoom' => $zoom,
-            'pattern' => $pattern,
             'map-type' => $mapType,
             'animate-marker' => $animateMarker,
             'align-map-center' => $alignMapCenter,
+            'latitude-selector' => $latitudeSelector,
+            'longitude-selector' => $longitudeSelector,
+            'address-selector' => $addressSelector
         ],
     ]
 );
-
-    // The actual hidden input
-    echo Html::activeHiddenInput(
-        $model,
-        $attribute,
-        [
-            'class' => 'kolyunya-map-input-widget-input',
-        ]
-    );
 
     // Map canvas
     echo Html::tag(
