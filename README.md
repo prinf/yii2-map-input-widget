@@ -28,7 +28,6 @@ An exhaustive list of widget parameters (which are not derived from [yii\widgets
 echo $form->field($model, 'coordinates')->widget(
     'kolyunya\yii2\widgets\MapInputWidget',
     [
-
         // Google maps browser key.
         'key' => $key,
 
