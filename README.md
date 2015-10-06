@@ -50,8 +50,6 @@ echo $form->field($model, 'coordinates')->widget(
         // longitude value
         longitudeSelector = null,
 
-
-
         // jQuery selector for an input where your are going to save geocoding
         // result value
         addressSelector = null,
