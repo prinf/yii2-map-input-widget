@@ -82,12 +82,10 @@ function MapInputWidget ( widget )
                 mapTypeId: $(widget).data('map-type'),
                 center: getInitialMapCenter(),
                 zoom: $(widget).data('zoom'),
-                styles:
-                [
+                styles: [
                     {
                         featureType: "poi",
-                        stylers:
-                        [
+                        stylers: [
                             {
                                 visibility: "off",
                             },
@@ -96,9 +94,7 @@ function MapInputWidget ( widget )
                 ],
                 mapTypeControlOptions :
                 {
-                    mapTypeIds:
-                    [
-                    ],
+                    mapTypeIds:[],
                 },
             }
         );
@@ -124,7 +120,7 @@ function MapInputWidget ( widget )
     var initializeWidget = function()
     {
         var point = getInitialValue();
-        self.setPosition(point);
+        self.setPosition(point, true);
         $(widget).data('initialized',true);
     };
 
@@ -172,7 +168,7 @@ function MapInputWidget ( widget )
         if
         (
             pointData.latitude !== undefined
-                &&
+            &&
             pointData.longitude !== undefined
         )
         {
@@ -205,7 +201,7 @@ function MapInputWidget ( widget )
     // Sets the widget value to specified point;
     // Pans the map to the corresponding point;
     // Sets marker position to the corresponding point.
-    this.setPosition = function ( pointData )
+    this.setPosition = function ( pointData, initialize )
     {
 
         if ( map.marker )
@@ -230,36 +226,53 @@ function MapInputWidget ( widget )
         var point = makePoint(pointData);
 
         //reverse geocoding...
-        $.ajax({
-            url: "http://nominatim.openstreetmap.org/reverse",
-            data: {
-                "format": "json",
-                "lat": point.lat(),
-                "lon": point.lng(),
-                "addressdetails": 1,
-                "accept-language": 'en'
-            },
-            cache: false,
-            type: "GET",
-            success: function (response) {
-                var result = '';
-                if(response.address.pedestrian){ result += response.address.pedestrian;}
-                else if(response.address.road){ result += response.address.road;}
-                else if(response.address.suburb){ result += response.address.suburb;}
+        //we don't need geocode primary value
+        if(!initialize) {
+            $.ajax({
+                url: "http://nominatim.openstreetmap.org/reverse",
+                data: {
+                    "format": "json",
+                    "lat": point.lat(),
+                    "lon": point.lng(),
+                    "addressdetails": 1,
+                    "accept-language": 'en'
+                },
+                cache: false,
+                type: "GET",
+                success: function (response) {
+                    var result = '';
+                    if (response.address.pedestrian) {
+                        result += response.address.pedestrian;
+                    }
+                    else if (response.address.road) {
+                        result += response.address.road;
+                    }
+                    else if (response.address.suburb) {
+                        result += response.address.suburb;
+                    }
 
-                if(response.address.house_number){ result += ', '+response.address.house_number;}
-                if(response.address.city){ result += ', '+response.address.city;}
-                if(response.address.city_district){result += ', '+response.address.city_district;}
-                if(response.address.postcode){result += ', '+response.address.postcode;}
+                    if (response.address.house_number) {
+                        result += ', ' + response.address.house_number;
+                    }
+                    if (response.address.city) {
+                        result += ', ' + response.address.city;
+                    }
+                    if (response.address.city_district) {
+                        result += ', ' + response.address.city_district;
+                    }
+                    if (response.address.postcode) {
+                        result += ', ' + response.address.postcode;
+                    }
 
-                var address_input = $($(widget).data('address-selector'));
-                address_input.animate({borderColor: "#FF0000"}, 250);
-                setTimeout(function(){
-                    address_input.val(result);
-                    address_input.animate({borderColor: "#CCCCCC"}, 250)
-                },400);
-            }
-        });
+                    var address_input = $($(widget).data('address-selector'));
+                    address_input.animate({borderColor: "#FF0000"}, 250);
+                    setTimeout(function () {
+                        address_input.val(result);
+                        address_input.animate({borderColor: "#CCCCCC"}, 250)
+                    }, 400);
+                }
+            });
+        }
 
         if ( $(widget).data('align-map-center') === 1 )
         {
