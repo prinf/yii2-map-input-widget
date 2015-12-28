@@ -117,6 +117,23 @@ function MapInputWidget ( widget )
 
     };
 
+    var initializeAutocomplete = function()
+    {
+        var input = $($(widget).data('address-selector'));
+        if(input.length != 0){
+            var autocomplete = new google.maps.places.Autocomplete(input[0]);
+            autocomplete.addListener('place_changed', function() {
+                var place = autocomplete.getPlace();
+                if (place.geometry) {
+                    self.setPosition(                    {
+                        latitude: place.geometry.location.lat(),
+                        longitude: place.geometry.location.lng()
+                    }, true);
+                }
+            });
+        }
+    };
+
     var initializeWidget = function()
     {
         var point = getInitialValue();
@@ -188,6 +205,7 @@ function MapInputWidget ( widget )
     {
         initializeComponents();
         initializeMap();
+        initializeAutocomplete();
         initializeWidget();
     };
 

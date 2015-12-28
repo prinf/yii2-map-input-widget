@@ -37,6 +37,7 @@ class MapInputAsset extends \yii\web\AssetBundle
         $scriptUrl .= http_build_query([
             'key' => self::$key,
             'sensor' => 'false',
+            'libraries' => 'places'
         ]);
         return $scriptUrl;
     }
